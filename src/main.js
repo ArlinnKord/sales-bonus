@@ -14,18 +14,27 @@ function calculateBonusByProfit(index, total, seller) {
   }
 }
 
-function calculateSimpleRevenue(purchase, _product) {
-  const discount = purchase.items[0].discount;
-  const sale_price = purchase.items[0].sale_price;
-  const quantity = purchase.items[0].quantity;
+function calculateSimpleRevenue(purchase, product) {
+
+  if (!purchase.items || purchase.items.length === 0) {
+    return 0;
+  }
+
+  const item = purchase.items[0];
+  const discount = item.discount;
+  const sale_price = item.sale_price;
+  const quantity = item.quantity;
+
   const revenue = sale_price * quantity * (1 - discount / 100);
   return revenue;
 }
 
 function analyzeSalesData(data, options) {
-  if (!data || !data.sellers || !data.products || !data.purchase_records) {
-    throw new Error("Invalid data structure");
-  }
+    
+    if (!data || !data.sellers || !data.products || !data.purchase_records ||
+        data.sellers.length === 0 || data.products.length === 0 || data.purchase_records.length === 0) {
+        throw new Error('Invalid data structure');
+    }
 
   if (!options || !options.calculateRevenue || !options.calculateBonus) {
     throw new Error(
@@ -94,6 +103,16 @@ function analyzeSalesData(data, options) {
     seller.top_products = topProducts;
     delete seller.products_count;
   });
+  
+const formattedSellers = sortedSellers.map(seller => ({
+    seller_id: seller.seller_id,
+    name: seller.name,
+    revenue: +seller.revenue.toFixed(2),
+    profit: +seller.profit.toFixed(2),
+    sales_count: seller.sales_count,
+    bonus: +seller.bonus.toFixed(2),
+    top_products: seller.top_products
+}));
 
-  return sortedSellers;
+return formattedSellers;    
 }
