@@ -114,10 +114,10 @@ function analyzeSalesData(data, options) {
 const formattedSellers = sortedSellers.map(seller => ({
     seller_id: seller.seller_id,
     name: seller.name,
-    revenue: Math.round(seller.revenue * 100) / 100,
-    profit: Math.round(seller.profit * 100) / 100,
+    revenue: parseFloat(seller.revenue.toFixed(2)),
+    profit: parseFloat(seller.profit.toFixed(2)),
     sales_count: seller.sales_count,
-    bonus: Math.round(seller.bonus * 100) / 100,
+    bonus: parseFloat(seller.bonus.toFixed(2)),
     top_products: seller.top_products
 }));
 
