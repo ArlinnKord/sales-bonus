@@ -14,6 +14,25 @@ function calculateBonusByProfit(index, total, seller) {
   }
 }
 
+function calculateSimpleRevenue(purchase, product) {
+  let item;
+
+  if (purchase.items && purchase.items.length > 0) {
+    item = purchase.items[0];
+  } else if (purchase.sale_price !== undefined) {
+    item = purchase;
+  } else {
+    return 0;
+  }
+
+  const discount = item.discount || 0;
+  const sale_price = item.sale_price;
+  const quantity = item.quantity;
+
+  const revenue = sale_price * quantity * (1 - discount / 100);
+  return revenue;
+}
+
 function analyzeSalesData(data, options) {
   if (
     !data ||
