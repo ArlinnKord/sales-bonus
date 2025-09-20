@@ -123,7 +123,7 @@ const formattedSellers = sortedSellers.map(seller => ({
 
 const finalSellers = formattedSellers.map(seller => ({
     ...seller,
-    revenue: Math.ceil(seller.revenue * 100 - 0.000001) / 100, // Поправка в сторону эталона
+    revenue: Math.ceil(seller.revenue * 100 - 0.000001) / 100,
     profit: Math.ceil(seller.profit * 100 - 0.000001) / 100,
     bonus: Math.ceil(seller.bonus * 100 - 0.000001) / 100
 }));
