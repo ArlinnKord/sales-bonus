@@ -114,7 +114,7 @@ function analyzeSalesData(data, options) {
 const formattedSellers = sortedSellers.map(seller => ({
     seller_id: seller.seller_id,
     name: seller.name,
-    revenue: parseFloat(seller.revenue.toFixed(6)), // Сначала округлим до 6 знаков
+    revenue: parseFloat(seller.revenue.toFixed(6)), 
     profit: parseFloat(seller.profit.toFixed(6)),
     sales_count: seller.sales_count,
     bonus: parseFloat(seller.bonus.toFixed(6)),
