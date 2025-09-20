@@ -15,18 +15,25 @@ function calculateBonusByProfit(index, total, seller) {
 }
 
 function calculateSimpleRevenue(purchase, product) {
+    
+    let item;
+    
+    if (purchase.items && purchase.items.length > 0) {
+        
+        item = purchase.items[0];
+    } else if (purchase.sale_price !== undefined) {
+        
+        item = purchase;
+    } else {
+        return 0;
+    }
+    
+    const discount = item.discount || 0;
+    const sale_price = item.sale_price;
+    const quantity = item.quantity;
 
-  if (!purchase.items || purchase.items.length === 0) {
-    return 0;
-  }
-
-  const item = purchase.items[0];
-  const discount = item.discount;
-  const sale_price = item.sale_price;
-  const quantity = item.quantity;
-
-  const revenue = sale_price * quantity * (1 - discount / 100);
-  return revenue;
+    const revenue = sale_price * quantity * (1 - discount / 100);
+    return revenue;
 }
 
 function analyzeSalesData(data, options) {
@@ -107,10 +114,10 @@ function analyzeSalesData(data, options) {
 const formattedSellers = sortedSellers.map(seller => ({
     seller_id: seller.seller_id,
     name: seller.name,
-    revenue: +seller.revenue.toFixed(2),
-    profit: +seller.profit.toFixed(2),
+    revenue: Math.round(seller.revenue * 100) / 100,
+    profit: Math.round(seller.profit * 100) / 100,
     sales_count: seller.sales_count,
-    bonus: +seller.bonus.toFixed(2),
+    bonus: Math.round(seller.bonus * 100) / 100,
     top_products: seller.top_products
 }));
 
