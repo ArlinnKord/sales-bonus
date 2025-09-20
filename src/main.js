@@ -43,90 +43,68 @@ function analyzeSalesData(data, options) {
         throw new Error('Invalid data structure');
     }
 
-  if (!options || !options.calculateRevenue || !options.calculateBonus) {
-    throw new Error(
-      "Options with calculateRevenue and calculateBonus are required"
-    );
-  }
+    if (!options || !options.calculateRevenue || !options.calculateBonus) {
+        throw new Error("Options with calculateRevenue and calculateBonus are required");
+    }
 
-  const { calculateRevenue, calculateBonus } = options;
+    const { calculateRevenue, calculateBonus } = options;
 
-  const sellersMap = {};
-  data.sellers.forEach((seller) => {
-    sellersMap[seller.id] = seller;
-  });
-
-  const productsMap = {};
-  data.products.forEach((product) => {
-    productsMap[product.sku] = product;
-  });
-
-  const sellersStats = {};
-  data.sellers.forEach((seller) => {
-    sellersStats[seller.id] = {
-      seller_id: seller.id,
-      name: `${seller.first_name} ${seller.last_name}`,
-      revenue: 0,
-      profit: 0,
-      sales_count: 0,
-      products_count: {},
-    };
-  });
-
-  data.purchase_records.forEach((receipt) => {
-    const seller = sellersStats[receipt.seller_id];
-    if (!seller) return;
-
-    seller.sales_count++;
-
-    receipt.items.forEach((item) => {
-      const product = productsMap[item.sku];
-      if (!product) return;
-
-      const revenue = calculateRevenue({ items: [item] }, product);
-      const profit = revenue - product.purchase_price * item.quantity;
-
-      seller.revenue += revenue;
-      seller.profit += profit;
-
-      seller.products_count[item.sku] =
-        (seller.products_count[item.sku] || 0) + item.quantity;
+    const sellersMap = {};
+    data.sellers.forEach((seller) => {
+        sellersMap[seller.id] = seller;
     });
-  });
 
-  const sortedSellers = Object.values(sellersStats).sort(
-    (a, b) => b.profit - a.profit
-  );
+    const productsMap = {};
+    data.products.forEach((product) => {
+        productsMap[product.sku] = product;
+    });
 
-  const totalSellers = sortedSellers.length;
-  sortedSellers.forEach((seller, index) => {
-    seller.bonus = calculateBonus(index, totalSellers, seller);
+    const sellersStats = {};
+    data.sellers.forEach((seller) => {
+        sellersStats[seller.id] = {
+            seller_id: seller.id,
+            name: `${seller.first_name} ${seller.last_name}`,
+            revenue: 0,
+            profit: 0,
+            sales_count: 0,
+            products_count: {},
+        };
+    });
 
-    const topProducts = Object.entries(seller.products_count)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([sku, quantity]) => ({ sku, quantity }));
+    data.purchase_records.forEach((receipt) => {
+        const seller = sellersStats[receipt.seller_id];
+        if (!seller) return;
 
-    seller.top_products = topProducts;
-    delete seller.products_count;
-  });
-  
-const formattedSellers = sortedSellers.map(seller => ({
-    seller_id: seller.seller_id,
-    name: seller.name,
-    revenue: parseFloat(seller.revenue.toFixed(6)), 
-    profit: parseFloat(seller.profit.toFixed(6)),
-    sales_count: seller.sales_count,
-    bonus: parseFloat(seller.bonus.toFixed(6)),
-    top_products: seller.top_products
-}));
+        seller.sales_count++;
 
-const finalSellers = formattedSellers.map(seller => ({
-    ...seller,
-    revenue: Math.ceil(seller.revenue * 100 - 0.000001) / 100,
-    profit: Math.ceil(seller.profit * 100 - 0.000001) / 100,
-    bonus: Math.ceil(seller.bonus * 100 - 0.000001) / 100
-}));
+        receipt.items.forEach((item) => {
+            const product = productsMap[item.sku];
+            if (!product) return;
 
-return formattedSellers;    
+            const revenue = calculateRevenue({ items: [item] }, product);
+            const profit = revenue - product.purchase_price * item.quantity;
+
+            seller.revenue += revenue;
+            seller.profit += profit;
+
+            seller.products_count[item.sku] = (seller.products_count[item.sku] || 0) + item.quantity;
+        });
+    });
+
+    const sortedSellers = Object.values(sellersStats).sort((a, b) => b.profit - a.profit);
+
+    const totalSellers = sortedSellers.length;
+    sortedSellers.forEach((seller, index) => {
+        seller.bonus = calculateBonus(index, totalSellers, seller);
+
+        const topProducts = Object.entries(seller.products_count)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([sku, quantity]) => ({ sku, quantity }));
+
+        seller.top_products = topProducts;
+        delete seller.products_count;
+    });
+
+    return sortedSellers;
 }
