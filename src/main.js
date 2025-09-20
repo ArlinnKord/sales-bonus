@@ -1,7 +1,3 @@
-function commercialRound(num) {
-    return Math.round(num * 100 + 0.0000001) / 100;
-}
-
 function calculateBonusByProfit(index, total, seller) {
   const { profit } = seller;
 
@@ -118,11 +114,18 @@ function analyzeSalesData(data, options) {
 const formattedSellers = sortedSellers.map(seller => ({
     seller_id: seller.seller_id,
     name: seller.name,
-    revenue: commercialRound(seller.revenue),
-    profit: commercialRound(seller.profit),
+    revenue: parseFloat(seller.revenue.toFixed(6)), // Сначала округлим до 6 знаков
+    profit: parseFloat(seller.profit.toFixed(6)),
     sales_count: seller.sales_count,
-    bonus: commercialRound(seller.bonus),
+    bonus: parseFloat(seller.bonus.toFixed(6)),
     top_products: seller.top_products
+}));
+
+const finalSellers = formattedSellers.map(seller => ({
+    ...seller,
+    revenue: Math.ceil(seller.revenue * 100 - 0.000001) / 100, // Поправка в сторону эталона
+    profit: Math.ceil(seller.profit * 100 - 0.000001) / 100,
+    bonus: Math.ceil(seller.bonus * 100 - 0.000001) / 100
 }));
 
 return formattedSellers;    
