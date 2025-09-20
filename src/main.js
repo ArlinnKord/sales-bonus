@@ -1,3 +1,7 @@
+function commercialRound(num) {
+    return Math.round(num * 100 + 0.0000001) / 100;
+}
+
 function calculateBonusByProfit(index, total, seller) {
   const { profit } = seller;
 
@@ -114,10 +118,10 @@ function analyzeSalesData(data, options) {
 const formattedSellers = sortedSellers.map(seller => ({
     seller_id: seller.seller_id,
     name: seller.name,
-    revenue: Number(seller.revenue.toFixed(2)),
-    profit: Number(seller.profit.toFixed(2)),
+    revenue: commercialRound(seller.revenue),
+    profit: commercialRound(seller.profit),
     sales_count: seller.sales_count,
-    bonus: Number(seller.bonus.toFixed(2)),
+    bonus: commercialRound(seller.bonus),
     top_products: seller.top_products
 }));
 
