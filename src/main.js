@@ -76,26 +76,29 @@ function analyzeSalesData(data, options) {
     };
   });
 
-  data.purchase_records.forEach((receipt) => {
+data.purchase_records.forEach((receipt) => {
     const seller = sellersStats[receipt.seller_id];
     if (!seller) return;
 
     seller.sales_count++;
 
+    
     receipt.items.forEach((item) => {
-      const product = productsMap[item.sku];
-      if (!product) return;
+        const product = productsMap[item.sku];
+        if (!product) return;
 
-      const revenue = calculateRevenue({ items: [item] }, product);
-      const profit = revenue - product.purchase_price * item.quantity;
+        const revenue = calculateRevenue({ items: [item] }, product);
+        const profit = revenue - product.purchase_price * item.quantity;
 
-      seller.revenue += revenue;
-      seller.profit += profit;
-
-      seller.products_count[item.sku] =
-        (seller.products_count[item.sku] || 0) + item.quantity;
+        seller.profit += profit;
+        
+        
+        seller.products_count[item.sku] = (seller.products_count[item.sku] || 0) + item.quantity;
     });
-  });
+    
+    
+    seller.revenue += receipt.total_amount;
+});
 
   const sortedSellers = Object.values(sellersStats).sort(
     (a, b) => b.profit - a.profit
@@ -117,12 +120,12 @@ function analyzeSalesData(data, options) {
   const formattedSellers = sortedSellers.map((seller) => ({
     seller_id: seller.seller_id,
     name: seller.name,
-    revenue: Math.round(seller.revenue * 100) / 100,
-    profit: Math.round(seller.profit * 100) / 100,
+    revenue: Number(seller.revenue.toFixed(2)),
+    profit: Number(seller.profit.toFixed(2)),
     sales_count: seller.sales_count,
-    bonus: Math.round(seller.bonus * 100) / 100,
+    bonus: Number(seller.bonus.toFixed(2)),
     top_products: seller.top_products,
-  }));
+}));
 
   return formattedSellers;
 }
